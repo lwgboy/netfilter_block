@@ -20,6 +20,7 @@ typedef u_int tcp_seq;
 
 // Declare http_method & target (argv[1])
 u_int8_t *target;
+u_int8_t target_len;
 u_int32_t id;
 u_int8_t flag; // To identify ACCEPT, DROP
 
@@ -72,18 +73,18 @@ static u_int32_t print_pkt (struct nfq_data *tb) {
 	ret = nfq_get_payload(tb, &data); // IP header의 시작 위치를 알아 낸다	
     if (ret >= 0) {
 		printf("payload_len=%d ", ret);
-		dump(data, ret);
+		//dump(data, ret);
 	} // finding IP header
 	// Until this part, same as nfqtest!!!!!!!!
-
+	int i =0;
 	int size = ret;
 
 	ipHdr = (struct ip *)data; //right
 	ip_hdr_size = ipHdr->ip_hl * 4; //only ip header length
-	printf("[*] ipHdr size : %d\n", ip_hdr_size); // always 20 bytes
-	printf("[DUMP]ipHdr-----------");
-	dump((char *)ipHdr, ip_hdr_size);
-	printf("[ipHdr DUMP Finished]\n");
+	//printf("[*] ipHdr size : %d\n", ip_hdr_size); // always 20 bytes
+	//printf("[DUMP]ipHdr-----------");
+	//dump((char *)ipHdr, ip_hdr_size);
+	//printf("[ipHdr DUMP Finished]\n");
 
 	// Now, let's find TCP Header & Data area! DUDE!!
 	tcpHdr = (struct tcphdr *) (data + ip_hdr_size); // located at +20 
@@ -92,22 +93,26 @@ static u_int32_t print_pkt (struct nfq_data *tb) {
 	tcp_data_len = ret - ip_hdr_size - tcp_hdr_size; // ret is total length 
 
 	if(ipHdr->ip_p == TCPTYPE && tcp_hdr_size > 0) {
-		printf("[*] tcpHdr size : %d\n",tcp_hdr_size);
-		printf("[DUMP]tcpHdr-----------");
-		dump((char *) tcpHdr, tcp_hdr_size);
-		printf("[tcpHdr DUMP Finished]\n");
+		//printf("[*] tcpHdr size : %d\n",tcp_hdr_size);
+		//printf("[DUMP]tcpHdr-----------");
+		//dump((char *) tcpHdr, tcp_hdr_size);
+		//printf("[tcpHdr DUMP Finished]\n");
 		
-		printf("[*] tcp_data size : %d\n", tcp_data_len);
-		printf("[DUMP]tcp data area-----");
-		dump((char *) tcp_data_area, tcp_data_len);
-		printf("[tcp data area DUMP Finished]\n");
-
-		if(strstr(tcp_data_area,"Host: ") {
-
-
-
+		//printf("[*] tcp_data size : %d\n", tcp_data_len);
+		//printf("[DUMP]tcp data area-----");
+		//dump((char *) tcp_data_area, tcp_data_len);
+		//printf("[tcp data area DUMP Finished]\n");
+		//printf("%s\n", tcp_data_area);
+		search_host = strstr(tcp_data_area, "Host: ");
+		if(search_host != NULL) {
+			// seg fault if it just print it!
+			printf("****************ATTENTION***************\n");
+			char *tmp;
+			tmp = (char*)malloc(sizeof(char) * (6 + target_len)); // 6 for "Host: "
+			strncpy(tmp, search_host, sizeof(char) * (6 + target_len));
+			printf("%s\n", tmp);
+			free(tmp);
 		}
-		
 	
 	}
 
@@ -138,7 +143,8 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	
-	target = argv[1];	
+	target = argv[1];
+	target_len = strlen(target);
 
 	// Initializing the iptables configuration
 	system("iptables -F"); //iptables_F
