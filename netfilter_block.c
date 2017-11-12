@@ -71,7 +71,7 @@ static u_int32_t print_pkt (struct nfq_data *tb) {
 	ifi = nfq_get_physindev(tb);
 	ifi = nfq_get_physoutdev(tb);
 	ret = nfq_get_payload(tb, &data); // IP header의 시작 위치를 알아 낸다	
-    if (ret >= 0) {
+	if (ret >= 0) {
 		printf("payload_len=%d ", ret);
 		//dump(data, ret);
 	} // finding IP header
@@ -111,9 +111,13 @@ static u_int32_t print_pkt (struct nfq_data *tb) {
 			tmp = (char*)malloc(sizeof(char) * (6 + target_len)); // 6 for "Host: "
 			strncpy(tmp, search_host, sizeof(char) * (6 + target_len));
 			printf("%s\n", tmp);
+			if (!strcmp(target,tmp+6)) {
+				printf("[+] Same with the target DUDE!!!\n");
+				flag = 0;
+			}
 			free(tmp);
 		}
-	
+			
 	}
 
 	return id;
@@ -125,7 +129,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 {
 	u_int32_t id = print_pkt(nfa);
 	printf("[*] entering callback\n");
-	return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL); // flag: 1 ACCEPT, 0 DROP
+	return nfq_set_verdict(qh, id, flag, 0, NULL); // flag: 1 ACCEPT, 0 DROP
 }
 
 int main(int argc, char *argv[]) {
