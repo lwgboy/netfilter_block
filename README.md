@@ -15,5 +15,5 @@ Host:에서 제공된 url 이 일치하면 전역변수 1을 0으로 변환 <br 
 return nfq_set_verdict(qh, id, flag, 0, NULL); // flag: 1 ACCEPT, 0 DROP
 `    
 <br />
-가 verdict의 두 번째 인자인 전역 변수 flag를 통해 Accep과 Drop 판단 <br />
+가 verdict의 두 번째 인자인 전역 변수 flag를 통해 Accept과 Drop 판단 <br />
 나머지는 기본 코드와 동일함.
