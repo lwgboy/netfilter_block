@@ -5,7 +5,7 @@ netfilter_block to filter a URL
 argv[1]에 막을 url 입력 <br />
 ./netfilter_block [막을 url]
 
-# Code 분석
+# 코드 설명
 106~121 라인이 제일 중요 <br />
 Host:에서 제공된 url 이 일치하면 전역변수 1을 0으로 변환 <br />
 
